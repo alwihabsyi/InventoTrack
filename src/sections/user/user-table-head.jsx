@@ -34,7 +34,6 @@ export default function UserTableHead({
             sx={{ width: headCell.width, minWidth: headCell.minWidth }}
           >
             <TableSortLabel
-              hideSortIcon
               active={orderBy === headCell.id}
               direction={orderBy === headCell.id ? order : 'asc'}
               onClick={onSort(headCell.id)}

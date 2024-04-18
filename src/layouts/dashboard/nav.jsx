@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import Box from '@mui/material/Box';
@@ -27,8 +27,14 @@ import navConfig from './config-navigation';
 
 export default function Nav({ openNav, onCloseNav }) {
   const pathname = usePathname();
-
   const upLg = useResponsive('up', 'lg');
+
+  const [selectedRole, setSelectedRole] = useState(localStorage.getItem('userRole') || 'admin');
+
+  const handleRoleChange = (role) => {
+    setSelectedRole(role);
+    localStorage.setItem('userRole', role);
+  };
 
   useEffect(() => {
     if (openNav) {
@@ -64,8 +70,31 @@ export default function Nav({ openNav, onCloseNav }) {
 
   const renderMenu = (
     <Stack component="nav" spacing={0.5} sx={{ px: 2 }}>
-      {navConfig.map((item) => (
+      {navConfig
+      .filter((item) => {
+        // Assuming user role is stored in local storage
+        const userRole = localStorage.getItem('userRole');
+        // Check if the item's role matches the user's role
+        return item.allowedRoles.includes(userRole);
+      })
+      .map((item) => (
         <NavItem key={item.title} item={item} />
+      ))}
+    </Stack>
+  );
+
+  const renderRoleSwitcher = (
+    <Stack alignItems="center" spacing={2} sx={{ px: 2.5, pb: 3 }}>
+      {['admin', 'anggota', 'ketua', 'kepala'].map((role) => (
+        <Button
+          key={role}
+          variant="outlined"
+          size="small"
+          color={selectedRole === role ? 'primary' : 'inherit'}
+          onClick={() => handleRoleChange(role)}
+        >
+          {role}
+        </Button>
       ))}
     </Stack>
   );
@@ -96,6 +125,8 @@ export default function Nav({ openNav, onCloseNav }) {
       {renderMenu}
 
       <Box sx={{ flexGrow: 1 }} />
+
+      {renderRoleSwitcher}
 
       {renderUpgrade}
     </Scrollbar>
@@ -132,6 +163,8 @@ export default function Nav({ openNav, onCloseNav }) {
           {renderContent}
         </Drawer>
       )}
+
+      {!upLg && renderRoleSwitcher}
     </Box>
   );
 }

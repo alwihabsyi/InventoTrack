@@ -34,7 +34,7 @@ export default function UserPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = users.map((user) => user.namaBarang); // Assuming "namaBarang" is the property representing the name
+      const newSelecteds = users.map((user) => user.namaBarang);
       setSelected(newSelecteds);
     } else {
       setSelected([]);
@@ -72,7 +72,6 @@ export default function UserPage() {
 
   const handleFilterByName = (event) => {
     setFilterName(event.target.value);
-    setPage(0);
   };
 
   useEffect(() => {
