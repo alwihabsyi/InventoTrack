@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
@@ -9,11 +10,12 @@ import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 
 import Scrollbar from 'src/components/scrollbar';
-import UserTableToolbar from '../user-table-toolbar';
-import UserTableHead from '../user-table-head';
-import UserTableRow from '../user-table-row';
-import TableEmptyRows from '../table-empty-rows';
+
 import TableNoData from '../table-no-data';
+import UserTableRow from '../user-table-row';
+import UserTableHead from '../user-table-head';
+import TableEmptyRows from '../table-empty-rows';
+import UserTableToolbar from '../user-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 
 export default function UserPage() {
@@ -77,7 +79,7 @@ export default function UserPage() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch(`http://localhost/inventotrack-api/public/api/v1/inventories?page=${page + 1}&limit=${rowsPerPage}`);
+        const response = await fetch(`https://inventotrack-api.test/api/v1/inventories?page=${page + 1}&limit=${rowsPerPage}`);
         if (!response.ok) {
           throw new Error('Failed to fetch data');
         }
@@ -138,6 +140,7 @@ export default function UserPage() {
                   .map((row) => (
                     <UserTableRow
                       key={row.id}
+                      id={row.id}
                       name={row.namaBarang}
                       fotoBarang={row.gambarBarang}
                       kodeBarang={row.kodeBarang}

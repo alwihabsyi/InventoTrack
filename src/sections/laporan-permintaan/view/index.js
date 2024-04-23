@@ -1,0 +1,1 @@
+export { default as LaporanPermintaanView } from './laporan-permintaan-view';

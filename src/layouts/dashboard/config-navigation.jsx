@@ -21,7 +21,7 @@ const navConfig = [
   },
   {
     title: 'Laporan Permintaan',
-    path: '/',
+    path: '/laporan-permintaan',
     icon: icon('ic_analytics'),
     allowedRoles: ['admin']
   },
@@ -51,7 +51,7 @@ const navConfig = [
   },
   {
     title: 'Laporan',
-    path: '/login',
+    path: '/laporan',
     icon: icon('ic_disabled'),
     allowedRoles: ['kepala', 'ketua']
   },

@@ -1,19 +1,17 @@
+import axios from 'axios';
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
 import Popover from '@mui/material/Popover';
 import TableRow from '@mui/material/TableRow';
 import MenuItem from '@mui/material/MenuItem';
 import TableCell from '@mui/material/TableCell';
-import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
 import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
 import DetailBarang from './detail';
@@ -21,6 +19,7 @@ import DetailBarang from './detail';
 // ----------------------------------------------------------------------
 
 export default function UserTableRow({
+  id,
   selected,
   name,
   fotoBarang,
@@ -44,10 +43,6 @@ export default function UserTableRow({
     }
   };
 
-  const handleOpenMenu = (event) => {
-    setOpen(event.currentTarget);
-  };
-
   const handleCloseMenu = () => {
     setOpen(null);
   };
@@ -67,14 +62,39 @@ export default function UserTableRow({
   };
 
   const handleAjuan = () => {
-    if (stokAkhir !== 0) {
-      alert(`ada barang, jumlah: ${jumlahBarang}`)
+    if (stokAkhir !== 0 && jumlahBarang !== 0) {
+      ajukanBarang()
     } else if (jumlahBarang > stokAkhir) {
       alert("jumlah barang melebihi stok")
+    } else if (jumlahBarang === 0) {
+      alert("jumlah barang minimal 1")
     } else {
       alert("tidak ada barang")
     }
   }
+
+  const ajukanBarang = async () => {
+    try {
+      const data = {
+        inventoryId: id,
+        jumlah: jumlahBarang,
+        user_id : 18
+      }
+
+      const response = await axios.post('https://inventotrack-api.test/api/v1/ajukanBarang', data);
+      console.log(response.data);
+
+      if (response.data.status === "success") {
+        handleCloseDialog()
+        alert(response.data.message)
+      } else {
+        handleCloseDialog()
+        alert(response.data.message)
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
 
   return (
     <>
@@ -166,6 +186,7 @@ export default function UserTableRow({
 }
 
 UserTableRow.propTypes = {
+  id: PropTypes.any,
   fotoBarang: PropTypes.any,
   kodeBarang: PropTypes.any,
   handleClick: PropTypes.func,

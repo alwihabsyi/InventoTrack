@@ -1,0 +1,1 @@
+export { default as LaporanView } from './laporan-view';

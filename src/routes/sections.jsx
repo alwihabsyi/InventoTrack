@@ -2,6 +2,8 @@ import { lazy, Suspense } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
 import DashboardLayout from 'src/layouts/dashboard';
+import LaporanPage from 'src/pages/laporan';
+import LaporanPermintaanPage from 'src/pages/laporan-permintaan';
 
 export const IndexPage = lazy(() => import('src/pages/app'));
 export const BlogPage = lazy(() => import('src/pages/blog'));
@@ -27,6 +29,8 @@ export default function Router() {
         { path: 'inventories', element: <InventoryPage /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
+        { path: 'laporan', element: <LaporanPage /> },
+        { path: 'laporan-permintaan', element: <LaporanPermintaanPage /> }
       ],
     },
     {
