@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import React, { useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Drawer from '@mui/material/Drawer';
-import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import { alpha } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
@@ -28,13 +27,6 @@ import navConfig from './config-navigation';
 export default function Nav({ openNav, onCloseNav }) {
   const pathname = usePathname();
   const upLg = useResponsive('up', 'lg');
-
-  const [selectedRole, setSelectedRole] = useState(localStorage.getItem('userRole') || 'admin');
-
-  const handleRoleChange = (role) => {
-    setSelectedRole(role);
-    localStorage.setItem('userRole', role);
-  };
 
   useEffect(() => {
     if (openNav) {
@@ -83,22 +75,6 @@ export default function Nav({ openNav, onCloseNav }) {
     </Stack>
   );
 
-  const renderRoleSwitcher = (
-    <Stack alignItems="center" spacing={2} sx={{ px: 2.5, pb: 3 }}>
-      {['admin', 'anggota', 'ketua', 'kepala'].map((role) => (
-        <Button
-          key={role}
-          variant="outlined"
-          size="small"
-          color={selectedRole === role ? 'primary' : 'inherit'}
-          onClick={() => handleRoleChange(role)}
-        >
-          {role}
-        </Button>
-      ))}
-    </Stack>
-  );
-
   const renderUpgrade = (
     <Box sx={{ px: 2.5, pb: 3, mt: 10 }}>
       <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
@@ -125,8 +101,6 @@ export default function Nav({ openNav, onCloseNav }) {
       {renderMenu}
 
       <Box sx={{ flexGrow: 1 }} />
-
-      {renderRoleSwitcher}
 
       {renderUpgrade}
     </Scrollbar>
@@ -164,7 +138,7 @@ export default function Nav({ openNav, onCloseNav }) {
         </Drawer>
       )}
 
-      {!upLg && renderRoleSwitcher}
+      {!upLg}
     </Box>
   );
 }

@@ -8,7 +8,7 @@ import LaporanItems from "../laporan-items";
 
 export default function LaporanPage() {
     const [unit, setUnit] = useState([]);
-    const [unitID] = useState(2);
+    const [unitID] = useState(localStorage.getItem('unitId'));
     const [page, setPage] = useState(0);
     const [totalCount, setTotalCount] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(3);

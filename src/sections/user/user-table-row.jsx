@@ -78,7 +78,7 @@ export default function UserTableRow({
       const data = {
         inventoryId: id,
         jumlah: jumlahBarang,
-        user_id : 18
+        user_id : localStorage.getItem('userId')
       }
 
       const response = await axios.post('https://inventotrack-api.test/api/v1/ajukanBarang', data);

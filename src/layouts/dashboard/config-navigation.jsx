@@ -63,7 +63,7 @@ const navConfig = [
   },
   {
     title: 'Logout',
-    path: '/404',
+    path: '/logout',
     icon: icon('ic_disabled'),
     allowedRoles: ['admin', 'anggota', 'ketua', 'kepala']
   },

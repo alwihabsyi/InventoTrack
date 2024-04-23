@@ -11,6 +11,7 @@ import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { alpha, useTheme } from '@mui/material/styles';
 import InputAdornment from '@mui/material/InputAdornment';
+import { Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 
 import { useRouter } from 'src/routes/hooks';
 
@@ -19,10 +20,17 @@ import { bgGradient } from 'src/theme/css';
 import Logo from 'src/components/logo';
 import Iconify from 'src/components/iconify';
 
+import PaginatedSpinner from './paginated-spinner';
+
 // ----------------------------------------------------------------------
 
-export default function LoginView() {
+export default function SignUpView() {
+  const [selectedUnit, setSelectedUnit] = useState('');
+  const [role, setUserRole] = useState('');
+  const [password, setUserPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+
   const theme = useTheme();
 
   const router = useRouter();
@@ -30,26 +38,29 @@ export default function LoginView() {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleClick = () => {
-    if (email !== '') {
-      handleLogin()
-    } else {
-      alert("Harap isi email")
+    if (!inputValidation()) {
+      alert("Harap isi semua field")
+      return;
     }
+
+    handleSignUp();
   };
 
-  const handleLogin = async() => {
+  const handleSignUp = async() => {
     try {
-        const response = await axios.get(`https://inventotrack-api.test/api/v1/anggota/signIn/${email}`);
+        const data = {
+          unit_kerja_id: selectedUnit,
+          nama_anggota: username,
+          user_role: role,
+          user_email: email
+        }
+
+        const response = await axios.post(`https://inventotrack-api.test/api/v1/anggota/store`, data);
         console.log(response.data);
 
         if (response.data.status === "success") {
-            const {data} = response.data
-            localStorage.setItem('userRole', data.userRole);
-            localStorage.setItem('unitId', data.unitId);
-            localStorage.setItem('userId', data.id);
-
             alert(response.data.message);
-            router.push('/');
+            router.push('/login');
         } else {
             alert(response.data.message);
         }
@@ -57,25 +68,58 @@ export default function LoginView() {
         console.error('Error fetching data:', error);
         alert(`Error: ${  error.response.data.error}`); // Display the error message from the backend
     }
+  }
+
+  const inputValidation = () => selectedUnit !== '' && role !== '' && password !== '' && username !== '' && email !== ''
+
+  const handleLogin = () => {
+    router.push('/login');
+  }
+
+  const handleSelectUnit = (unitId) => {
+    setSelectedUnit(unitId);
   };
 
-  const handleSignUp = () => {
-    router.push('/signup')
+  const handleSelectRole = (event) => {
+    setUserRole(event.target.value);
+  };
+
+  const handleUserPassword = (event) => {
+    setUserPassword(event.target.value);
+  }
+
+  const handleUsername = (event) => {
+    setUsername(event.target.value);
   }
 
   const handleEmail = (event) => {
-    setEmail(event.target.value)
+    setEmail(event.target.value);
   }
 
   const renderForm = (
     <>
       <Stack spacing={3}>
-        <TextField name="email" label="Email address" onChange={handleEmail}/>
+        <PaginatedSpinner onSelectUnit={handleSelectUnit} />
+
+        <FormControl fullWidth >
+            <InputLabel>Select Role</InputLabel>
+            <Select value={role} onChange={handleSelectRole}>
+              <MenuItem value="admin">Admin</MenuItem>
+              <MenuItem value="anggota">Anggota</MenuItem>
+              <MenuItem value="ketua">Ketua</MenuItem>
+              <MenuItem value="kepala">Kepala</MenuItem>
+            </Select>
+        </FormControl>
+
+        <TextField name="username" label="Name" onChange={handleUsername}/>
+
+        <TextField name="email" label="Email Address" onChange={handleEmail}/>
 
         <TextField
           name="password"
           label="Password"
           type={showPassword ? 'text' : 'password'}
+          onChange={handleUserPassword}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -102,7 +146,7 @@ export default function LoginView() {
         color="inherit"
         onClick={handleClick}
       >
-        Login
+        Sign Up
       </LoadingButton>
     </>
   );
@@ -133,52 +177,14 @@ export default function LoginView() {
             maxWidth: 420,
           }}
         >
-          <Typography variant="h4">Sign in to InventoTrack</Typography>
+          <Typography variant="h4">Sign Up to InventoTrack</Typography>
 
           <Typography variant="body2" sx={{ mt: 2, mb: 5 }}>
-            Don’t have an account?
-            <Link onClick={handleSignUp} variant="subtitle2" sx={{ ml: 0.5 }}>
-              Get started
+            Already have an account?
+            <Link onClick={handleLogin} variant="subtitle2" sx={{ ml: 0.5 }}>
+              Login
             </Link>
           </Typography>
-
-          {/* <Stack direction="row" spacing={2}>
-            <Button
-              fullWidth
-              size="large"
-              color="inherit"
-              variant="outlined"
-              sx={{ borderColor: alpha(theme.palette.grey[500], 0.16) }}
-            >
-              <Iconify icon="eva:google-fill" color="#DF3E30" />
-            </Button>
-
-            <Button
-              fullWidth
-              size="large"
-              color="inherit"
-              variant="outlined"
-              sx={{ borderColor: alpha(theme.palette.grey[500], 0.16) }}
-            >
-              <Iconify icon="eva:facebook-fill" color="#1877F2" />
-            </Button>
-
-            <Button
-              fullWidth
-              size="large"
-              color="inherit"
-              variant="outlined"
-              sx={{ borderColor: alpha(theme.palette.grey[500], 0.16) }}
-            >
-              <Iconify icon="eva:twitter-fill" color="#1C9CEA" />
-            </Button>
-          </Stack>
-
-          <Divider sx={{ my: 3 }}>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              OR
-            </Typography>
-          </Divider> */}
 
           {renderForm}
         </Card>

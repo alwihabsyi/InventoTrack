@@ -8,7 +8,6 @@ import LaporanPermintaanItems from "../laporan-permintaan-items";
 
 export default function LaporanPermintaanPage() {
     const [unit, setUnit] = useState([]);
-    const [unitID] = useState(1);
     const [page, setPage] = useState(0);
     const [totalCount, setTotalCount] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(3);
@@ -35,7 +34,7 @@ export default function LaporanPermintaanPage() {
         };
 
         fetchUnit();
-    }, [page, rowsPerPage, selected, unitID]);
+    }, [page, rowsPerPage, selected]);
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
