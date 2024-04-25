@@ -11,7 +11,7 @@ import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function UserTableToolbar({ numSelected, filterName, onFilterName }) {
+export default function UserTableToolbar({ numSelected, filterName, onFilterName, placeholder }) {
   return (
     <Toolbar
       sx={{
@@ -33,7 +33,7 @@ export default function UserTableToolbar({ numSelected, filterName, onFilterName
         <OutlinedInput
           value={filterName}
           onChange={onFilterName}
-          placeholder="Search user..."
+          placeholder={placeholder || "Search user..."}
           startAdornment={
             <InputAdornment position="start">
               <Iconify
@@ -66,4 +66,5 @@ UserTableToolbar.propTypes = {
   numSelected: PropTypes.number,
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,
+  placeholder: PropTypes.string
 };

@@ -1,0 +1,1 @@
+export { default as CekStatusView } from './status-view';

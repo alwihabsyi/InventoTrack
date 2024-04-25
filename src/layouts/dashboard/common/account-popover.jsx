@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
@@ -14,20 +15,30 @@ import { account } from 'src/_mock/account';
 // ----------------------------------------------------------------------
 
 const MENU_OPTIONS = [
-  
+
 ];
 
 // ----------------------------------------------------------------------
 
 export default function AccountPopover() {
   const [open, setOpen] = useState(null);
+  const navigate = useNavigate();
 
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
   };
 
   const handleClose = () => {
-    setOpen(null);
+    setOpen(false)
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('unitId');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userEmail');
+    navigate('/login');
   };
 
   return (
@@ -94,7 +105,7 @@ export default function AccountPopover() {
         <MenuItem
           disableRipple
           disableTouchRipple
-          onClick={handleClose}
+          onClick={handleLogout}
           sx={{ typography: 'body2', color: 'error.main', py: 1.5 }}
         >
           Logout

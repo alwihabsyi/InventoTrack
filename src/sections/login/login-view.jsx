@@ -47,9 +47,9 @@ export default function LoginView() {
             localStorage.setItem('userRole', data.userRole);
             localStorage.setItem('unitId', data.unitId);
             localStorage.setItem('userId', data.id);
-
-            alert(response.data.message);
-            router.push('/');
+            localStorage.setItem('userName', data.namaAnggota);
+            localStorage.setItem('userEmail', data.userEmail);
+            window.location.href = '/';
         } else {
             alert(response.data.message);
         }

@@ -33,8 +33,8 @@ const navConfig = [
   },
   {
     title: 'Cek Status',
-    path: '/404',
-    icon: icon('ic_blog'),
+    path: '/status',
+    icon: icon('ic_file'),
     allowedRoles: ['anggota', 'ketua', 'kepala']
   },
   {

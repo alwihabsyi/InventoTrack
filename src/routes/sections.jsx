@@ -12,6 +12,7 @@ export const Page404 = lazy(() => import('src/pages/page-not-found'));
 export const LaporanPage = lazy(() => import('src/pages/laporan'));
 export const SignUpPage = lazy(() => import('src/pages/signup'));
 export const LaporanPermintaanPage = lazy(() => import('src/pages/laporan-permintaan'));
+export const CekStatusPage = lazy(() => import('src/pages/status'));
 
 // ----------------------------------------------------------------------
 
@@ -20,6 +21,10 @@ export default function Router() {
 
   const handleLogout = () => {
     localStorage.removeItem('userRole');
+    localStorage.removeItem('unitId');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userEmail');
     navigate('/login');
   };
 
@@ -47,6 +52,7 @@ export default function Router() {
         { path: 'blog', element: <BlogPage /> },
         { path: 'laporan', element: <LaporanPage /> },
         { path: 'laporan-permintaan', element: <LaporanPermintaanPage /> },
+        { path: 'status', element: <CekStatusPage /> },
       ],
     },
     {
