@@ -1,7 +1,5 @@
-import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { set, sub } from 'date-fns';
-import { faker } from '@faker-js/faker';
+import { useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
@@ -25,47 +23,30 @@ import Scrollbar from 'src/components/scrollbar';
 
 // ----------------------------------------------------------------------
 
-const NOTIFICATIONS = [
-  {
-    id: faker.string.uuid(),
-    title: 'Ajuan pengambilan barang',
-    description: 'Isi Form Ambil Barang',
-    avatar: null,
-    type: 'order_placed',
-    createdAt: set(new Date(), { hours: 10, minutes: 30 }),
-    isUnRead: true,
-  },
-  {
-    id: faker.string.uuid(),
-    title: 'Selamat permintaanmu diterima!',
-    description: 'Lihat Surat Permintaan',
-    avatar: '/assets/images/avatars/avatar_2.jpg',
-    type: 'friend_interactive',
-    createdAt: sub(new Date(), { hours: 3, minutes: 30 }),
-    isUnRead: true,
-  },
-  {
-    id: faker.string.uuid(),
-    title:'Permintaanmu sedang diajukan',
-    description: 'Dalam pengecekan Admin',
-    avatar: null,
-    type: 'chat_message',
-    createdAt: sub(new Date(), { days: 1, hours: 3, minutes: 30 }),
-    isUnRead: false,
-  },
-  {
-    id: faker.string.uuid(),
-    title: 'Permintaanmu sedang diajukan',
-    description: 'Dalam pengecekan Ketua Koordinasi',
-    avatar: null,
-    type: 'mail',
-    createdAt: sub(new Date(), { days: 2, hours: 3, minutes: 30 }),
-    isUnRead: false,
-  },
-];
-
 export default function NotificationsPopover() {
-  const [notifications, setNotifications] = useState(NOTIFICATIONS);
+  const [notifications, setNotifications] = useState([]);
+  const [userId] = useState(localStorage.getItem('userId'));
+  const [userRole] = useState(localStorage.getItem('userRole'));
+  const [unitId] = useState(localStorage.getItem('unitId'));
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await fetch(`https://inventotrack-api.test/api/v1/getNotifications?userId=${userId}&userRole=${userRole}&unitId=${unitId}`);
+        if (!response.status === 'success') {
+          throw new Error('Failed to fetch data');
+        }
+        const data = await response.json();
+        console.log(`Notification: ${data.notifications}`);
+        setNotifications(data.notifications);
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    };
+
+    fetchNotifications();
+  }, [userId, userRole, unitId]);
+
 
   const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
 
@@ -79,13 +60,31 @@ export default function NotificationsPopover() {
     setOpen(null);
   };
 
-  const handleMarkAllAsRead = () => {
-    setNotifications(
-      notifications.map((notification) => ({
-        ...notification,
-        isUnRead: false,
-      }))
-    );
+  const handleMarkAllAsRead = async () => {
+    try {
+      const response = await fetch(`https://inventotrack-api.test/api/v1/getNotifications/mark-all-as-read?id=${userId}&userRole=${userRole}$unitId=${unitId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      });
+
+      const data = await response.json();
+  
+      if (data.status === 'success') {
+        setNotifications(
+          notifications.map((notification) => ({
+            ...notification,
+            isUnRead: false,
+          }))
+        );
+      } else {
+        throw new Error('Failed to mark all notifications as read');
+      }
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
   };
 
   return (
@@ -180,6 +179,7 @@ NotificationItem.propTypes = {
     description: PropTypes.string,
     type: PropTypes.string,
     avatar: PropTypes.any,
+    userId: PropTypes.string,
   }),
 };
 
@@ -233,30 +233,6 @@ function renderContent(notification) {
     </Typography>
   );
 
-  if (notification.type === 'order_placed') {
-    return {
-      avatar: <img alt={notification.title} src="/assets/icons/ic_notification_package.svg" />,
-      title,
-    };
-  }
-  if (notification.type === 'order_shipped') {
-    return {
-      avatar: <img alt={notification.title} src="/assets/icons/ic_notification_shipping.svg" />,
-      title,
-    };
-  }
-  if (notification.type === 'mail') {
-    return {
-      avatar: <img alt={notification.title} src="/assets/icons/ic_notification_mail.svg" />,
-      title,
-    };
-  }
-  if (notification.type === 'chat_message') {
-    return {
-      avatar: <img alt={notification.title} src="/assets/icons/ic_notification_chat.svg" />,
-      title,
-    };
-  }
   return {
     avatar: notification.avatar ? <img alt={notification.title} src={notification.avatar} /> : null,
     title,

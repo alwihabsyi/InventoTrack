@@ -6,6 +6,10 @@ const icon = (name) => (
   <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />
 );
 
+const pngIcon = (name) => (
+  <img src={`/assets/icons/navbar/${name}.png`} alt='icon'/>
+);
+
 const navConfig = [
   {
     title: 'Persediaan Barang',
@@ -22,7 +26,7 @@ const navConfig = [
   {
     title: 'Laporan Permintaan',
     path: '/laporan-permintaan',
-    icon: icon('ic_analytics'),
+    icon: pngIcon('ic_laporan_permintaan'),
     allowedRoles: ['admin']
   },
   {
@@ -38,33 +42,27 @@ const navConfig = [
     allowedRoles: ['anggota', 'ketua', 'kepala']
   },
   {
-    title: 'Informasi Pengembalian',
-    path: '/404',
-    icon: icon('ic_blog'),
+    title: 'Informasi Pengambilan',
+    path: '/informasi-pengembalian',
+    icon: pngIcon('ic_pengambilan'),
     allowedRoles: ['admin']
   },
   {
     title: 'Monitoring',
     path: '/blog',
-    icon: icon('ic_disabled'),
+    icon: pngIcon('ic_computer'),
     allowedRoles: ['admin', 'ketua', 'kepala']
   },
   {
     title: 'Laporan',
     path: '/laporan',
-    icon: icon('ic_disabled'),
-    allowedRoles: ['kepala', 'ketua']
+    icon: pngIcon('ic_pengambilan'),
+    allowedRoles: ['ketua']
   },
   {
     title: 'Pedoman',
     path: '/404',
-    icon: icon('ic_disabled'),
-    allowedRoles: ['admin', 'anggota', 'ketua', 'kepala']
-  },
-  {
-    title: 'Logout',
-    path: '/logout',
-    icon: icon('ic_disabled'),
+    icon: pngIcon('ic_pedoman'),
     allowedRoles: ['admin', 'anggota', 'ketua', 'kepala']
   },
 ];

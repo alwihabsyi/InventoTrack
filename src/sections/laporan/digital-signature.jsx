@@ -5,6 +5,7 @@ import SignatureCanvas from 'react-signature-canvas';
 import { Stack, Button } from '@mui/material';
 
 const DigitalSignature = ({ onSignatureSave }) => {
+  // eslint-disable-next-line no-unused-vars
   const [signature, setSignature] = useState(null);
   const sigCanvas = useRef({});
 

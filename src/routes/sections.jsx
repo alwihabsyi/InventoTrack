@@ -12,6 +12,7 @@ export const Page404 = lazy(() => import('src/pages/page-not-found'));
 export const LaporanPage = lazy(() => import('src/pages/laporan'));
 export const SignUpPage = lazy(() => import('src/pages/signup'));
 export const LaporanPermintaanPage = lazy(() => import('src/pages/laporan-permintaan'));
+export const InformasiPengembalianPage = lazy(() => import('src/pages/informasi-pengembalian'));
 export const CekStatusPage = lazy(() => import('src/pages/status'));
 
 // ----------------------------------------------------------------------
@@ -52,6 +53,7 @@ export default function Router() {
         { path: 'blog', element: <BlogPage /> },
         { path: 'laporan', element: <LaporanPage /> },
         { path: 'laporan-permintaan', element: <LaporanPermintaanPage /> },
+        { path: 'informasi-pengembalian', element: <InformasiPengembalianPage /> },
         { path: 'status', element: <CekStatusPage /> },
       ],
     },

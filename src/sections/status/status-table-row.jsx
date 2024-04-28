@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 
@@ -12,17 +11,21 @@ import ImageUploadCard from './image-upload-card';
 
 export default function StatusTableRow({
     id,
+    itemId,
     namaBarang,
     fotoBarang,
     kodeBarang,
     tanggalAjuan,
-    jumlah,
+    jumlahBarang,
     status
 }) {
     const [openCetak, setopenCetak] = useState(false);
     const [openApproval, setOpenApproval] = useState(false);
+    const [openPdf, setOpenPdf] = useState(false);
     const [pickupDate, setPickupDate] = useState(null);
     const [image, setImage] = useState(null);
+    const [pdfUrl, setPdfUrl] = useState(null);
+    const [userId] = useState(localStorage.getItem('userId'));
 
     const handleOpenCetak = (event) => {
         const { clientWidth, clientHeight } = document.documentElement;
@@ -44,22 +47,46 @@ export default function StatusTableRow({
         setOpenApproval({ anchorEl: event.currentTarget, centerX, centerY });
     };
 
+    const handleOpenPdf = (event) => {
+        const { clientWidth, clientHeight } = document.documentElement;
+        const centerX = clientWidth / 2;
+        const centerY = clientHeight / 2;
+
+        setOpenPdf({ anchorEl: event.currentTarget, centerX, centerY });
+    };
+
     const handleCloseApproval = () => {
         setOpenApproval(false);
     };
 
-    const handleApprove = async () => {
-        try {
-            const response = await axios.put(`https://inventotrack-api.test/api/v1/approveKetua/${id}/update`)
-            console.log(response.data);
+    const handleClosePdf = () => {
+        setOpenPdf(false);
+        window.location.reload();
+    };
 
-            if (response.data.status === "success") {
-                alert(response.data.message);
+    const handleApprove = async (event) => {
+        try {
+            const formData = new FormData();
+            formData.append('fotoBukti', image);
+            formData.append('inventoryId', itemId);
+            formData.append('statusId', id);
+            formData.append('tanggalAmbil', pickupDate);
+            formData.append('jumlah', jumlahBarang);
+            formData.append('userId', userId);
+
+            const response = await fetch('https://inventotrack-api.test/api/v1/historyBarang/save', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                setPdfUrl(data.data.buktiCetak);
                 handleCloseApproval();
-                window.location.reload();
+                handleCloseCetak();
+                handleOpenPdf(event);
             } else {
-                alert(response.data.error)
-                handleCloseApproval()
+                alert('Image upload failed');
             }
         } catch (error) {
             handleCloseApproval()
@@ -87,17 +114,17 @@ export default function StatusTableRow({
     const handlePickupDate = (event) => {
         setPickupDate(event.target.value);
     }
-    
+
     const formatDateForDisplay = (date) => {
         const options = { day: '2-digit', month: 'long', year: 'numeric' };
         return new Date(date).toLocaleDateString('id-ID', options);
     };
 
     const formatDate = (date) => {
-        const day = date.getDate().toString().padStart(2, '0');
+        const year = date.getFullYear().toString();
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear().toString().slice(-2);
-        return `${day}/${month}/${year}`;
+        const day = date.getDate().toString().padStart(2, '0');
+        return `${year}/${month}/${day}`;
     };
 
     const today = new Date();
@@ -110,6 +137,12 @@ export default function StatusTableRow({
 
     const handleUploadData = (event) => {
         handleOpenApproval(event)
+    }
+    
+    const handleDownloadPdf = () => {
+        handleClosePdf();
+        window.open(pdfUrl, '_blank');
+        window.location.reload();
     }
 
     return (
@@ -126,7 +159,7 @@ export default function StatusTableRow({
 
                 <TableCell>{kodeBarang}</TableCell>
 
-                <TableCell>{jumlah}</TableCell>
+                <TableCell>{jumlahBarang}</TableCell>
 
                 <TableCell>{formattedDate(tanggalAjuan)}</TableCell>
 
@@ -137,14 +170,6 @@ export default function StatusTableRow({
                 <TableCell>
                     {status === 'Diterima Admin' ? (
                         <Link onClick={handleOpenCetak}>Cetak</Link>
-                    ) : (
-                        '-'
-                    )}
-                </TableCell>
-
-                <TableCell>
-                    {status === 'Selesai' ? (
-                        <Link>Lihat</Link>
                     ) : (
                         '-'
                     )}
@@ -174,7 +199,7 @@ export default function StatusTableRow({
                             flexDirection: 'column',
                         },
                     }}
-                    >
+                >
                     <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between', padding: '8px', margin: '0px', backgroundColor: 'blue', color: 'white' }}>
                         <Label style={{ color: 'white', backgroundColor: 'transparent', fontSize: '16px' }}>Form Ambil Barang</Label>
                         <IconButton onClick={handleCloseCetak} size="small" style={{ color: 'white' }}>
@@ -182,9 +207,9 @@ export default function StatusTableRow({
                         </IconButton>
                     </div>
                     <Stack spacing={3} marginTop='25px' paddingX='30px'>
-                        <TextField name="namaBarang" label="Nama Barang" value={namaBarang}/>
-                        <TextField name="kodeBarang" label="Kode Barang" value={kodeBarang}/>
-                        <TextField name="jumlah" label="Jumlah Barang" value={jumlah}/>
+                        <TextField name="namaBarang" label="Nama Barang" value={namaBarang} />
+                        <TextField name="kodeBarang" label="Kode Barang" value={kodeBarang} />
+                        <TextField name="jumlah" label="Jumlah Barang" value={jumlahBarang} />
                         <FormControl fullWidth >
                             <InputLabel>Tanggal Ambil Barang</InputLabel>
                             <Select value={pickupDate} onChange={handlePickupDate}>
@@ -193,9 +218,39 @@ export default function StatusTableRow({
                             </Select>
                         </FormControl>
                         <Typography variant='subtitle2'>Unggah Gambar</Typography>
-                        <ImageUploadCard sx={{ mt:'-10px' }} onImageSelect={handleImageSelect} onImageUpload={handleUploadData}/>
+                        <ImageUploadCard sx={{ mt: '-10px' }} onImageSelect={handleImageSelect} onImageUpload={handleUploadData} />
                     </Stack>
                 </Scrollbar>
+            </Popover>
+
+            <Popover
+                open={!!openPdf}
+                anchorEl={openPdf}
+                onClose={handleClosePdf}
+                anchorReference="anchorPosition"
+                anchorPosition={{ top: openPdf?.centerY || 0, left: openPdf?.centerX || 0 }}
+                transformOrigin={{
+                    vertical: 'center',
+                    horizontal: 'center',
+                }}
+                PaperProps={{
+                    sx: { width: '600px' }
+                }}
+            >
+                <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between', padding: '8px', margin: '0px', backgroundColor: 'blue', color: 'white' }}>
+                    <Label style={{ color: 'white', backgroundColor: 'transparent', fontSize: '16px' }}>Form Ambil Barang</Label>
+                    <IconButton onClick={handleClosePdf} size="small" style={{ color: 'white' }}>
+                        <Iconify icon="eva:close-fill" />
+                    </IconButton>
+                </div>
+                <Stack direction="column" width='100%' alignItems="center" justifyContent="center" mb={1}>
+                    {pdfUrl && (
+                        <div style={{ marginTop: '20px', width: '500px', display: 'flex', flexDirection: 'column', alignItems: "center" }}>
+                            <iframe title='PDF Bukti' src={pdfUrl} width="100%" height="500px" />
+                            <Button onClick={handleDownloadPdf} variant="contained" style={{ marginTop: '10px', width: '40%', mt: '10px' }}>Cetak</Button>
+                        </div>
+                    )}
+                </Stack>
             </Popover>
 
             <Popover
@@ -232,10 +287,11 @@ export default function StatusTableRow({
 
 StatusTableRow.propTypes = {
     id: PropTypes.any,
+    itemId: PropTypes.any,
     namaBarang: PropTypes.any,
     fotoBarang: PropTypes.any,
     kodeBarang: PropTypes.any,
     tanggalAjuan: PropTypes.any,
-    jumlah: PropTypes.any,
+    jumlahBarang: PropTypes.any,
     status: PropTypes.any
 }

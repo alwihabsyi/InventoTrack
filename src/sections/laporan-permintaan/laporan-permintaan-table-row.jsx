@@ -8,8 +8,6 @@ import { Stack, Avatar, Button, Popover, TableRow, TableCell, Typography, IconBu
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 
-import DigitalSignature from '../laporan/digital-signature';
-
 export default function LaporanPermintaanTableRow({
     id,
     namaBarang,
@@ -18,28 +16,8 @@ export default function LaporanPermintaanTableRow({
     jumlah,
     status
 }) {
-    const [openDialog, setOpenDialog] = useState(false);
     const [openApproval, setOpenApproval] = useState(false);
     const [openTolak, setOpenTolak] = useState(false);
-    const [signature, setSignature] = useState(null);
-
-    const handleSignatureSave = (signatureData, event) => {
-        setSignature(signatureData);
-        setOpenDialog(false)
-        handleOpenApproval(event);
-    };
-
-    const handleOpenDialog = (event) => {
-        const { clientWidth, clientHeight } = document.documentElement;
-        const centerX = clientWidth / 2;
-        const centerY = clientHeight / 2;
-
-        setOpenDialog({ anchorEl: event.currentTarget, centerX, centerY });
-    };
-
-    const handleCloseDialog = () => {
-        setOpenDialog(false);
-    };
 
     const handleOpenApproval = (event) => {
         const { clientWidth, clientHeight } = document.documentElement;
@@ -67,9 +45,9 @@ export default function LaporanPermintaanTableRow({
 
     const handleApprove = async () => {
         try {
-            const response = await axios.put(`https://inventotrack-api.test/api/v1/approveAdmin/${id}/update`, { ttd_admin: signature });
+            const response = await axios.put(`https://inventotrack-api.test/api/v1/approveAdmin/${id}/update`, {jumlahBarang: jumlah});
             console.log(response.data);
-    
+
             if (response.data.status === "success") {
                 alert(response.data.message);
                 handleCloseApproval();
@@ -80,16 +58,17 @@ export default function LaporanPermintaanTableRow({
             }
         } catch (error) {
             handleCloseApproval()
+            alert(error.response.data.message)
             console.error('Error fetching data:', error);
         }
     }
-    
 
-    const handleTolak = async() => {
+
+    const handleTolak = async () => {
         try {
-            const response = await axios.put(`https://inventotrack-api.test/api/v1/tolakAdmin/${id}/update`);
+            const response = await axios.put(`https://inventotrack-api.test/api/v1/tolakKetua/${id}/update`);
             console.log(response.data);
-    
+
             if (response.data.status === "success") {
                 alert(response.data.message);
                 handleCloseApproval();
@@ -123,38 +102,18 @@ export default function LaporanPermintaanTableRow({
                 <TableCell>
                     {status === 'Diterima Ketua' ? (
                         <>
-                            <Button sx={{ marginRight: '5px', color: 'green' }} onClick={handleOpenDialog}>
+                            <Button sx={{ marginRight: '5px', color: 'green' }} onClick={handleOpenApproval}>
                                 <FaCheck />
                             </Button>
                             <Button sx={{ color: 'red' }} onClick={handleOpenTolak}>
                                 <FaTimes />
                             </Button>
                         </>
-                    ): (
-                        <Typography variant="body1" color={status === 'Diterima Admin'? 'green' : 'red'}>{status}</Typography>
+                    ) : (
+                        <Typography variant="body1" color={status === 'Diterima Admin' ? 'green' : 'red'}>{status}</Typography>
                     )}
                 </TableCell>
             </TableRow>
-
-            <Popover
-                open={!!openDialog}
-                anchorEl={openDialog}
-                onClose={handleCloseDialog}
-                anchorReference="anchorPosition"
-                anchorPosition={{ top: openDialog?.centerY || 0, left: openDialog?.centerX || 0 }}
-                transformOrigin={{
-                    vertical: 'center',
-                    horizontal: 'center',
-                }}
-            >
-                <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between', padding: '8px', margin: '0px', backgroundColor: 'blue', color: 'white' }}>
-                    <Label style={{ color: 'white', backgroundColor: 'transparent', fontSize: '16px' }}>Tanda Tangan</Label>
-                    <IconButton onClick={handleCloseDialog} size="small" style={{ color: 'white' }}>
-                        <Iconify icon="eva:close-fill" />
-                    </IconButton>
-                </div>
-                <DigitalSignature sx={{ height: '400px' }} onSignatureSave={handleSignatureSave} />
-            </Popover>
 
             <Popover
                 open={!!openApproval}
@@ -171,7 +130,7 @@ export default function LaporanPermintaanTableRow({
                 }}
             >
                 <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between', padding: '8px', margin: '0px', backgroundColor: 'blue', color: 'white' }}>
-                    <Label style={{ color: 'white', backgroundColor: 'transparent', fontSize: '16px' }}>Tanda Tangan</Label>
+                    <Label style={{ color: 'white', backgroundColor: 'transparent', fontSize: '16px' }}>Approval Barang</Label>
                     <IconButton onClick={handleCloseApproval} size="small" style={{ color: 'white' }}>
                         <Iconify icon="eva:close-fill" />
                     </IconButton>

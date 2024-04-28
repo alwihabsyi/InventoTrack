@@ -10,25 +10,28 @@ import { Button, Popover, IconButton } from '@mui/material';
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 
-import ProductDetail from './product-detail';
+import PengembalianDetail from './pengembalian-detail';
+import Profile from '../../../public/assets/icons/ic_profile.png'
 
 
 // ----------------------------------------------------------------------
 
-export default function ShopProductCard({ product }) {
+export default function PengembalianCard({ product }) {
   const [openDetail, setOpenDetail] = useState(false);
 
   const renderImg = (
     <Box
       component="img"
-      alt={product.namaBarang}
-      src={product.gambarBarang}
+      alt={product.namaAnggota}
+      src={Profile}
       sx={{
-        top: 0,
-        width: 1,
-        height: 1,
+        width: '70%',
+        height: '70%',
         objectFit: 'cover',
         position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
       }}
     />
   );
@@ -48,29 +51,29 @@ export default function ShopProductCard({ product }) {
 
   return (
     <>
-    <Card>
-      <Box sx={{ pt: '100%', position: 'relative' }}>
-        {renderImg}
-      </Box>
+      <Card>
+        <Box sx={{ pt: '100%', position: 'relative' }}>
+          {renderImg}
+        </Box>
 
-      <Stack direction='column' spacing={0.5}>
-        <Link color="inherit" underline="hover" variant="subtitle1" textAlign='center' noWrap sx={{ pt: 2 }}>
-          {product.namaBarang.length > 20 ? `${product.namaBarang.substring(0, 20)}...` : product.namaBarang}
-        </Link>
+        <Stack direction='column' spacing={0.5}>
+          <Link color="inherit" underline="hover" variant="subtitle1" textAlign='center' noWrap sx={{ pt: 2 }}>
+            {product.namaAnggota.length > 20 ? `${product.namaAnggota.substring(0, 20)}...` : product.namaAnggota}
+          </Link>
 
-        <Link color="inherit" underline="hover" variant="subtitle2" textAlign='center' noWrap>
-          {product.namaBarang.length > 20 ? `${product.namaBarang.substring(0, 20)}...` : product.namaBarang}
-        </Link>
+          <Link color="inherit" underline="hover" variant="subtitle2" textAlign='center' noWrap>
+            {product.userRole} {product.namaUnit}
+          </Link>
 
-        <Stack direction="row" alignItems="center" justifyContent="center">
-          <Button onClick={handleDetailHistory} variant="outlined" sx={{ width: '80%', mt: '10px', mb: '20px' }}>
-            Detail
-          </Button>
+          <Stack direction="row" alignItems="center" justifyContent="center">
+            <Button onClick={handleDetailHistory} variant="outlined" sx={{ width: '80%', mt: '10px', mb: '20px' }}>
+              Detail
+            </Button>
+          </Stack>
         </Stack>
-      </Stack>
-    </Card>
-    
-    <Popover
+      </Card>
+
+      <Popover
         open={!!openDetail}
         anchorEl={openDetail}
         onClose={handleCloseDetail}
@@ -85,25 +88,26 @@ export default function ShopProductCard({ product }) {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between', padding: '8px', margin: '0px', backgroundColor: 'blue', color: 'white' }}>
-          <Label style={{ color: 'white', backgroundColor: 'transparent', fontSize: '16px' }}>Detail Barang</Label>
+          <Label style={{ color: 'white', backgroundColor: 'transparent', fontSize: '16px' }}>Detail Pengambilan</Label>
           <IconButton onClick={handleCloseDetail} size="small" style={{ color: 'white' }}>
             <Iconify icon="eva:close-fill" />
           </IconButton>
         </div>
-        <ProductDetail
-         fotoBarang={product.gambarBarang}
-         kodeBarang={product.kodeBarang}
-         jumlah={product.jumlahBarang}
-         name={product.namaBarang}
-         deskripsi={product.deskripsiBarang}
-         fotoUrl={product.buktiAmbil}
-         tanggalAmbil={product.tanggalAmbil}
-         />
+        <PengembalianDetail
+          namaAnggota={product.namaAnggota}
+          kodeBarang={product.kodeBarang}
+          unit={product.namaUnit}
+          jumlah={product.jumlahPinjam}
+          name={product.namaBarang}
+          deskripsi={product.deskripsiBarang}
+          fotoUrl={product.buktiAmbil}
+          tanggalAmbil={product.tanggalAmbil}
+        />
       </Popover>
     </>
   );
 }
 
-ShopProductCard.propTypes = {
+PengembalianCard.propTypes = {
   product: PropTypes.object
 };

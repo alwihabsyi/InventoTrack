@@ -96,7 +96,6 @@ export default function CekStatusPage() {
                                 { id: 'tanggal', label: 'Tanggal Ajuan' },
                                 { id: 'status', label: 'Status'},
                                 { id: 'aksi1', label: 'Aksi' },
-                                { id: 'aksi2', label: 'Aksi' },
                                 ]}
                             />
                             <TableBody>
@@ -105,11 +104,12 @@ export default function CekStatusPage() {
                                         <StatusTableRow
                                             key={row.id}
                                             id={row.id}
+                                            itemId={row.inventoryId}
                                             namaBarang={row.namaBarang}
                                             fotoBarang={row.fotoBarang}
                                             kodeBarang={row.kodeBarang}
                                             tanggalAjuan={row.tanggalAjuan}
-                                            jumlah={row.jumlah}
+                                            jumlahBarang={row.jumlah}
                                             status={row.status}
                                         />
                                 ))}

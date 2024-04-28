@@ -1,3 +1,4 @@
+import { FaPlus } from 'react-icons/fa';
 import React, { useState, useEffect } from 'react';
 
 import Card from '@mui/material/Card';
@@ -8,7 +9,10 @@ import TableBody from '@mui/material/TableBody';
 import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
+import { Button, Popover, IconButton, CardContent } from '@mui/material';
 
+import Label from 'src/components/label';
+import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 
 import TableNoData from '../table-no-data';
@@ -16,6 +20,7 @@ import UserTableRow from '../user-table-row';
 import UserTableHead from '../user-table-head';
 import TableEmptyRows from '../table-empty-rows';
 import UserTableToolbar from '../user-table-toolbar';
+import Excel from '../../../../public/assets/icons/ic_excel.png';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 
 export default function UserPage() {
@@ -27,6 +32,9 @@ export default function UserPage() {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [totalCount, setTotalCount] = useState(0);
+  const [userRole] = useState(localStorage.getItem('userRole') || "");
+  const [openExcel, setOpenExcel] = useState(false);
+  const [excel, setExcelFile] = useState(null);
 
   const handleSort = (event, id) => {
     const isAsc = orderBy === id && order === 'asc';
@@ -103,10 +111,49 @@ export default function UserPage() {
 
   const notFound = !dataFiltered.length && !!filterName;
 
+  const handleOpenExcel = (event) => {
+    const { clientWidth, clientHeight } = document.documentElement;
+    const centerX = clientWidth / 2;
+    const centerY = clientHeight / 2;
+
+    setOpenExcel({ anchorEl: event.currentTarget, centerX, centerY });
+  };
+
+  const handleCloseExcel = () => {
+    setOpenExcel(false);
+  };
+
+  const handleExcelChange = (e) => {
+    const selectedFile = e.target.files[0];
+    setExcelFile(selectedFile);
+  };
+
+  const handleUploadExcel = async () => {
+    const formData = new FormData();
+    formData.append('excel', excel);
+
+    const response = await fetch('https://inventotrack-api.test/api/v1/inventories/batchUpload', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json();
+    if (data.status === 'success') {
+      handleCloseExcel();
+      alert(data.message);
+      window.location.reload();
+    } else {
+      alert('Terjadi kesalahan pada server');
+    }
+  }
+
   return (
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
         <Typography variant="h4">Data Barang</Typography>
+        {userRole === 'admin' ? (
+          <Button onClick={handleOpenExcel} variant="contained" sx={{ gap: '8px' }}> <FaPlus /> Upload File Excel</Button>
+        ) : null}
       </Stack>
 
       <Card>
@@ -149,6 +196,7 @@ export default function UserPage() {
                       stokAkhir={row.stokAkhir}
                       selected={selected.indexOf(row.namaBarang) !== -1}
                       handleClick={(event) => handleClick(event, row.namaBarang)}
+                      userRole={userRole}
                     />
                   ))}
                 <TableEmptyRows
@@ -171,6 +219,57 @@ export default function UserPage() {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Card>
+
+      {/* PopOver for excel upload */}
+      <Popover
+        open={!!openExcel}
+        anchorEl={openExcel}
+        onClose={handleCloseExcel}
+        anchorReference="anchorPosition"
+        anchorPosition={{ top: openExcel?.centerY || 0, left: openExcel?.centerX || 0 }}
+        transformOrigin={{
+          vertical: 'center',
+          horizontal: 'center',
+        }}
+        PaperProps={{
+          sx: { width: '400px' }
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between', padding: '8px', margin: '0px' }}>
+          <Label style={{ color: 'black', backgroundColor: 'transparent', fontSize: '16px' }}>Upload File Excel</Label>
+          <IconButton onClick={handleCloseExcel} size="small" style={{ color: 'blue' }}>
+            <Iconify icon="eva:close-fill" />
+          </IconButton>
+        </div>
+        <Card>
+          <CardContent style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}>
+            <label htmlFor="excel-upload">
+              <input
+                id="excel-upload"
+                type="file"
+                accept=".xlsx, .xls"
+                onChange={handleExcelChange}
+                style={{ display: 'none' }}
+              />
+              {excel ? (
+                <Typography variant="body1" color="textSecondary" style={{ marginBottom: '20px' }}>
+                  {excel.name.length > 50 ? `${excel.name.substring(0, 50)}...` : excel.name}
+                </Typography>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+                  <img src={Excel} alt="Upload Icon" style={{ width: '100px', height: '100px', color: 'gray' }} />
+                  <Typography variant="body1" color="textSecondary">
+                    Select an excel file
+                  </Typography>
+                </div>
+              )}
+            </label>
+            <Button onClick={handleUploadExcel} variant="contained" disabled={!excel} sx={{ width: '40%', mt: '10px' }}>
+              Kirim
+            </Button>
+          </CardContent>
+        </Card>
+      </Popover>
     </Container>
   );
 }
